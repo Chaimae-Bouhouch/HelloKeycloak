@@ -1,16 +1,61 @@
 package ma.octo.hellokeycloack.config;
 
+import ma.octo.hellokeycloack.OurAuthorityMapper;
+import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
+import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@KeycloakConfiguration
+public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+
+    /**
+     * Registers the KeycloakAuthenticationProvider with the authentication manager.
+     */
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        var keycloakAuthenticationProvider=keycloakAuthenticationProvider();
+        var simpleAuthorityMapper=new OurAuthorityMapper();
+        //simpleAuthorityMapper.setPrefix("");
+        //simpleAuthorityMapper.setConvertToUpperCase(true);
+        keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(simpleAuthorityMapper);
+        auth.authenticationProvider(keycloakAuthenticationProvider);
+    }
+
+    /**
+     * Defines the session authentication strategy.
+     */
+    @Bean
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.formLogin().disable();
-        http.httpBasic().disable();
+    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        return new RegisterSessionAuthenticationStrategy(buildSessionRegistry());
+    }
+
+    @Bean
+    protected SessionRegistry buildSessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception
+    {
+        super.configure(http);
+        http
+                .authorizeRequests()
+                .antMatchers("/hello/user").hasAuthority("USER")
+                .antMatchers("/hello/admin").hasRole("ADMIN")
+                .antMatchers("/hello/manager").hasRole("MANAGER")
+                .anyRequest().permitAll();
     }
 }
