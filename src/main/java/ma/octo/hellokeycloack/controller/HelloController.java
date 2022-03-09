@@ -11,31 +11,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
 
     @GetMapping("/hello")
-    public HelloResponse hello(){
-        return new HelloResponse("Hello dear");
+    public HelloResponse hello() {
+        return new HelloResponse("Hello there!");
     }
 
     @GetMapping("/hello/auth")
-    public HelloResponse helloAuth(){
-        return new HelloResponse("Hello auth");
+    public HelloResponse helloAuth() {
+        return new HelloResponse("Hello, you are authenticated!");
     }
 
     @GetMapping("/hello/user")
-    public HelloResponse helloUser(){
-        final var principal = SecurityContextHolder.getContext().getAuthentication();
-        final var keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
-        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
-        System.out.println(accessToken.toString());
+    public HelloResponse helloUser() {
         return new HelloResponse("Hello user");
     }
 
     @GetMapping("/hello/admin")
-    public HelloResponse helloAdmin(){
+    public HelloResponse helloAdmin() {
         return new HelloResponse("Hello admin");
     }
 
     @GetMapping("/hello/manager")
-    public HelloResponse helloManager(){
+    public HelloResponse helloManager() {
         return new HelloResponse("Hello manager");
     }
 }

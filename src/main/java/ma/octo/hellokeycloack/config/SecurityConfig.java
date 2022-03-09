@@ -1,16 +1,11 @@
 package ma.octo.hellokeycloack.config;
 
-import ma.octo.hellokeycloack.OurAuthorityMapper;
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -25,11 +20,12 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
      */
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        var keycloakAuthenticationProvider=keycloakAuthenticationProvider();
-        var simpleAuthorityMapper=new OurAuthorityMapper();
-        //simpleAuthorityMapper.setPrefix("");
-        //simpleAuthorityMapper.setConvertToUpperCase(true);
+        var simpleAuthorityMapper = new SimpleAuthorityMapper();
+        simpleAuthorityMapper.setConvertToUpperCase(true);
+
+        var keycloakAuthenticationProvider = keycloakAuthenticationProvider();
         keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(simpleAuthorityMapper);
+
         auth.authenticationProvider(keycloakAuthenticationProvider);
     }
 
@@ -53,9 +49,10 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         super.configure(http);
         http
                 .authorizeRequests()
-                .antMatchers("/hello/user").hasAuthority("USER")
-                .antMatchers("/hello/admin").hasRole("ADMIN")
-                .antMatchers("/hello/manager").hasRole("MANAGER")
+                .antMatchers("/hello/user").authenticated()
+                .antMatchers("/hello/user").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers("/hello/manager").hasAnyAuthority("MANAGER", "ADMIN")
+                .antMatchers("/hello/admin").hasAuthority("ADMIN")
                 .anyRequest().permitAll();
     }
 }
