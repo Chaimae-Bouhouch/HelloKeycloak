@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -21,6 +22,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         var simpleAuthorityMapper = new SimpleAuthorityMapper();
+        simpleAuthorityMapper.setPrefix("");
         simpleAuthorityMapper.setConvertToUpperCase(true);
 
         var keycloakAuthenticationProvider = keycloakAuthenticationProvider();
@@ -47,12 +49,15 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception
     {
         super.configure(http);
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http
-                .authorizeRequests()
-                .antMatchers("/hello/user").authenticated()
-                .antMatchers("/hello/user").hasAnyAuthority("USER", "ADMIN")
-                .antMatchers("/hello/manager").hasAnyAuthority("MANAGER", "ADMIN")
-                .antMatchers("/hello/admin").hasAuthority("ADMIN")
-                .anyRequest().permitAll();
+            .authorizeRequests()
+            .antMatchers("/hello/auth").authenticated()
+            .antMatchers("/hello/user").hasAnyAuthority("USER", "ADMIN")
+            .antMatchers("/hello/manager").hasAnyAuthority("MANAGER", "ADMIN")
+            .antMatchers("/hello/admin").hasAuthority("ADMIN")
+            .anyRequest().permitAll();
     }
 }
