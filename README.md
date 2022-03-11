@@ -29,3 +29,20 @@ Now, run the springboot application, and test accessing to one of the following 
 - [GET] /hello/user (USER or ADMIN role is required)
 - [GET] /hello/manager (MANAGER or ADMIN role is required)
 - [GET] /hello/admin (ADMIN role is required)
+
+## Build and Push Docker image to registry
+
+```shell
+REGISTRY='docker.io'
+REPOSITORY='outama/hello-keycloak'
+VERSION='latest' # we can use a shell command to extract it from pom.xml
+USERNAME=''
+PASSWORD=''
+
+mvn compile jib:build \
+    -Djib.to.image="${REGISTRY}/${REPOSITORY}:${VERSION}" \
+    -Djib.to.auth.username=$USERNAME \
+    -Djib.to.auth.password=$PASSWORD
+```
+
+You can check the built image in : [https://hub.docker.com/repository/docker/outama/hello-keycloak](https://hub.docker.com/repository/docker/outama/hello-keycloak) 
