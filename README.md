@@ -22,13 +22,21 @@ curl -X POST 'http://localhost:8080/realms/<REALM-NAME>/protocol/openid-connect/
 Note: update the elements between <> with the corresponding ones in your Keycloak instance.
 The **<CLIENT-SECRET>** is not required if the client is public.
 
-Copy the value of `access_token` key given by the response of the above command.
+### Test endpoints
 
-Now, run the springboot application, and test accessing to one of the following endpoint with the copied access_token added as Bearer authorization to our request: 
+Copy the value of `access_token` key given by the response of the previous command.
+
+Now, run the springboot application, and test accessing to one of the following endpoints with the copied **access_token** added as **Bearer authorization** to our request: 
 - [GET] /hello/auth
 - [GET] /hello/user (USER or ADMIN role is required)
 - [GET] /hello/manager (MANAGER or ADMIN role is required)
 - [GET] /hello/admin (ADMIN role is required)
+
+```shell
+curl -X POST 'http://localhost:8081/hello/auth' \
+ --header 'Content-Type: application/json' \
+ --header 'Authorization: Bearer <ACCESS_TOKE_HERE>'
+```
 
 ## Build and Push Docker image to registry
 
