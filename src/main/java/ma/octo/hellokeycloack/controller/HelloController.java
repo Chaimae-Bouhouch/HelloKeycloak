@@ -1,10 +1,6 @@
 package ma.octo.hellokeycloack.controller;
 
 import ma.octo.hellokeycloack.dto.response.HelloResponse;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.keycloak.representations.AccessToken;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,14 +13,8 @@ public class HelloController {
     }
 
     @GetMapping("/hello/auth")
-    public ResponseEntity<AccessToken> helloAuth() {
-
-        Object authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
-
-        AccessToken accessToken = ((KeycloakAuthenticationToken) authentication).getAccount().getKeycloakSecurityContext().getToken();
-        return ResponseEntity.ok().body(accessToken);
+    public HelloResponse helloAuth() {
+        return new HelloResponse("Hello auth");
     }
 
     @GetMapping("/hello/user")
@@ -40,5 +30,15 @@ public class HelloController {
     @GetMapping("/hello/manager")
     public HelloResponse helloManager() {
         return new HelloResponse("Hello manager");
+    }
+
+    @GetMapping("/hello/edit")
+    public HelloResponse helloEdit() {
+        return new HelloResponse("Hello edit");
+    }
+
+    @GetMapping("/hello/delete")
+    public HelloResponse helloDelete() {
+        return new HelloResponse("Hello delete");
     }
 }
